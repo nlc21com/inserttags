@@ -1,4 +1,10 @@
 <?php
+namespace Nlc\Inserttags\Classes\Helper;
+use Contao\Controller;
+use ContaoDatabase;
+use Contao\InsertTags;
+use Contao\System;
+use Haste\Util\StringUtil;
 
 /**
  * inserttags extension for Contao Open Source CMS
@@ -10,7 +16,7 @@
  */
 
 
-class InsertTagsHelper extends \Contao\InsertTags
+class InsertTagsHelper extends InsertTags
 {
     /**
      * Current object instance (Singleton)
@@ -21,7 +27,7 @@ class InsertTagsHelper extends \Contao\InsertTags
     /**
      * Prevent cloning of the object (Singleton)
      */
-    final private function __clone() {}
+    private function __clone() {}
 
     /**
      * Return the current object instance (Singleton)
@@ -47,8 +53,8 @@ class InsertTagsHelper extends \Contao\InsertTags
     public function replaceCachedTags($strBuffer)
     {
         if ('install.php' === basename($_SERVER['REQUEST_URI'])
-            || !\Database::getInstance()->tableExists('tl_inserttags')
-            || !\Database::getInstance()->fieldExists('sorting', 'tl_inserttags')
+            || !Database::getInstance()->tableExists('tl_inserttags')
+            || !Database::getInstance()->fieldExists('sorting', 'tl_inserttags')
         ) {
             return $strBuffer;
         }
@@ -69,7 +75,7 @@ class InsertTagsHelper extends \Contao\InsertTags
             $cacheOutput = 'FE' === TL_MODE ? "AND cacheOutput='1'" : "";
             $arrTag = explode('::', $strTag);
 
-            $objTags = \Database::getInstance()
+            $objTags = Database::getInstance()
                                 ->prepare("SELECT * FROM tl_inserttags WHERE tag=? AND mode=? $cacheOutput ORDER BY sorting")
                                 ->execute($arrTag[1], TL_MODE)
             ;
@@ -77,8 +83,8 @@ class InsertTagsHelper extends \Contao\InsertTags
             while ($arrRow = $objTags->fetchAssoc()) {
                 if ($this->validateTag($arrRow)) {
                     $GLOBALS['INSERTAGS'][$strTag]++;
-                    $strBuffer .= \StringUtil::parseSimpleTokens(
-                        \Controller::replaceInsertTags($arrRow['replacement'], false),
+                    $strBuffer .= StringUtil::parseSimpleTokens(
+                        Controller::replaceInsertTags($arrRow['replacement'], false),
                         $arrTag
                     );
                     break;
@@ -102,7 +108,7 @@ class InsertTagsHelper extends \Contao\InsertTags
     public function replaceDynamicTags($strTag)
     {
         if ($GLOBALS['INSERTAGS'][$strTag] > 50) {
-            \System::log('WARNING: InsertTag "' . $strTag . '" caused an endless loop!', __METHOD__, TL_ERROR);
+            System::log('WARNING: InsertTag "' . $strTag . '" caused an endless loop!', __METHOD__, TL_ERROR);
 
             return '';
         }
@@ -113,7 +119,7 @@ class InsertTagsHelper extends \Contao\InsertTags
             return false;
         }
 
-        $objTags = \Database::getInstance()
+        $objTags = Database::getInstance()
                             ->prepare("SELECT * FROM tl_inserttags WHERE tag=? AND mode='FE' AND cacheOutput='' ORDER BY sorting")
                             ->execute($arrTag[1])
         ;
@@ -122,8 +128,8 @@ class InsertTagsHelper extends \Contao\InsertTags
             if ($this->validateTag($arrRow)) {
                 $GLOBALS['INSERTAGS'][$strTag]++;
 
-                return \StringUtil::parseSimpleTokens(
-                    \Controller::replaceInsertTags($arrRow['replacement'], false),
+                return StringUtil::parseSimpleTokens(
+                    Controller::replaceInsertTags($arrRow['replacement'], false),
                     $arrTag
                 );
             }
@@ -158,8 +164,8 @@ class InsertTagsHelper extends \Contao\InsertTags
                 return false;
             }
 
-            $arrTGroups = deserialize($arrRow['groups']);
-            $arrMGroups = deserialize(\FrontendUser::getInstance()->groups);
+            $arrTGroups = StringUtil::deserialize($arrRow['groups']);
+            $arrMGroups = StringUtil::deserialize(\FrontendUser::getInstance()->groups);
 
             // No groups available or member not in group
             if (!is_array($arrTGroups)
@@ -173,16 +179,16 @@ class InsertTagsHelper extends \Contao\InsertTags
         }
 
         if ($arrRow['useCondition']) {
-            $query = \Controller::replaceInsertTags($arrRow['conditionQuery'], false);
+            $query = Controller::replaceInsertTags($arrRow['conditionQuery'], false);
 
             switch ($arrRow['conditionType']) {
                 case 'database':
                     try {
-                        $query = \Database::getInstance()->execute($query)->fetchRow();
+                        $query = Database::getInstance()->execute($query)->fetchRow();
                         $query = $query[0];
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         // Something went wrong with the database query. Use as text instead
-                        $query = \Controller::replaceInsertTags($arrRow['conditionQuery'], false);
+                        $query = Controller::replaceInsertTags($arrRow['conditionQuery'], false);
                     }
                     break;
             }
@@ -266,10 +272,10 @@ class InsertTagsHelper extends \Contao\InsertTags
 
         if ($arrRow['timing']) {
             $now = time();
-            $start_date = deserialize($arrRow['start_date']);
-            $end_date = deserialize($arrRow['end_date']);
-            $start_time = deserialize($arrRow['start_time']);
-            $end_time = deserialize($arrRow['end_time']);
+            $start_date = StringUtil::deserialize($arrRow['start_date']);
+            $end_date = StringUtil::deserialize($arrRow['end_date']);
+            $start_time = StringUtil::deserialize($arrRow['start_time']);
+            $end_time = StringUtil::deserialize($arrRow['end_time']);
 
             $start = mktime(
                 (strlen($start_time[0]) ? $start_time[0] : date('H')),
@@ -296,11 +302,11 @@ class InsertTagsHelper extends \Contao\InsertTags
 
         // Limit pages
         if ($arrRow['limitpages']) {
-            $pages = deserialize($arrRow['pages'], true);
+            $pages = StringUtil::deserialize($arrRow['pages'], true);
             $allpages = $pages;
 
             if ($arrRow['includesubpages']) {
-                $subpages = \Database::getInstance()->getChildRecords($pages, 'tl_page');
+                $subpages = Database::getInstance()->getChildRecords($pages, 'tl_page');
                 $allpages = array_merge($allpages, $subpages);
             }
 
@@ -314,7 +320,7 @@ class InsertTagsHelper extends \Contao\InsertTags
 
         // Limit languages
         if ($arrRow['limitLanguages']) {
-            $arrLanguages = deserialize($arrRow['languages']);
+            $arrLanguages = StringUtil::deserialize($arrRow['languages']);
 
             if (is_array($arrLanguages) && !in_array($GLOBALS['TL_LANGUAGE'], $arrLanguages)) {
                 return false;
@@ -324,12 +330,12 @@ class InsertTagsHelper extends \Contao\InsertTags
         // Use the counter
         if ($arrRow['useCounter']) {
             if ($arrRow['counterValue'] == 0 && $arrRow['counterRepeat']) {
-                \Database::getInstance()
+                Database::getInstance()
                          ->prepare("UPDATE tl_inserttags SET counterValue=counterDefault WHERE id=?")
                          ->execute($arrRow['id'])
                 ;
             } elseif ($arrRow['counterValue'] > 0) {
-                \Database::getInstance()
+                Database::getInstance()
                          ->prepare("UPDATE tl_inserttags SET counterValue=(counterValue-1) WHERE id=?")
                          ->execute($arrRow['id'])
                 ;

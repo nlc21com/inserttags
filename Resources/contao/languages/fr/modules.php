@@ -10,12 +10,4 @@
  */
 
 
-/**
- * Register the classes
- */
-ClassLoader::addClasses(array
-(
-    'InsertTags'       => 'system/modules/inserttags/InsertTagsHelper.php',
-    'InsertTagsHelper' => 'system/modules/inserttags/InsertTagsHelper.php',
-));
-
+$GLOBALS['TL_LANG']['MOD']['inserttags'] = array('Insert-Tags', 'Gestion des Insert-tags sur les éléments de contenu');
