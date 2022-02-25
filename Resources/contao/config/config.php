@@ -22,6 +22,6 @@ $GLOBALS['BE_MOD']['content']['inserttags'] = array
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][]	= array('Nlc\Inserttags\Helper\InsertTagsHelper', 'replaceCachedTags');
-$GLOBALS['TL_HOOKS']['outputBackendTemplate'][]		= array('Nlc\Inserttags\Helper\InsertTagsHelper', 'replaceCachedTags');
-$GLOBALS['TL_HOOKS']['replaceInsertTags'][]			= array('Nlc\Inserttags\Helper\InsertTagsHelper', 'replaceDynamicTags');
+$GLOBALS['TL_HOOKS']['outputFrontendTemplate'][]	= array('Nlc\Inserttags\Classes\Helper\InsertTagsHelper', 'replaceCachedTags');
+$GLOBALS['TL_HOOKS']['outputBackendTemplate'][]		= array('Nlc\Inserttags\Classes\Helper\InsertTagsHelper', 'replaceCachedTags');
+$GLOBALS['TL_HOOKS']['replaceInsertTags'][]			= array('Nlc\Inserttags\Classes\Helper\InsertTagsHelper', 'replaceDynamicTags');
