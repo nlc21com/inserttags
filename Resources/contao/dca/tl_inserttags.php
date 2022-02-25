@@ -46,7 +46,7 @@ $GLOBALS['TL_DCA']['tl_inserttags'] = array
             'flag'                      => 1,
             'panelLayout'               => 'filter;search,limit',
             'paste_button_callback'     => array('tl_inserttags', 'pasteTag'),
-            'icon'                      => 'system/modules/inserttags/html/icon.gif',
+            'icon'                      => 'public/nlcinserttags/icon.gif',
 
         ),
         'label' => array
@@ -422,7 +422,7 @@ class tl_inserttags
             $label .= '<span style="color:#b3b3b3; padding-left:10px;">('.$arrRow['description'].')</span>';
         }
 
-        return '<img width="18" height="18" style="margin-left:0" alt="" src="system/modules/inserttags/html/page.gif"/> ' . $label;
+        return '<img width="18" height="18" style="margin-left:0" alt="" src="public/nlcinserttags/page.gif"/> ' . $label;
     }
 
     /**

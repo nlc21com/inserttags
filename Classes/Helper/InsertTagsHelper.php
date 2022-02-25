@@ -1,10 +1,10 @@
 <?php
 namespace Nlc\Inserttags\Classes\Helper;
 use Contao\Controller;
-use ContaoDatabase;
+use Contao\Database;
 use Contao\InsertTags;
 use Contao\System;
-use Haste\Util\StringUtil;
+use Contao\StringUtil;
 
 /**
  * inserttags extension for Contao Open Source CMS
